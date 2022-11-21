@@ -9,14 +9,30 @@ repositories {
     mavenCentral()
 }
 
-dependencies {
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.0'
+[compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
+jar {
+    manifest {
+        attributes('Main-Class': 'io.jalivv.es.Main')
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from {
+        (configurations.runtimeClasspath).collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    } {
+        exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
+    }
 
-    implementation 'org.projectlombok:lombok:1.18.24'
+}
+
+dependencies {
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.3'
+
+    implementation 'org.projectlombok:lombok:1.18.8'
     annotationProcessor 'org.projectlombok:lombok:1.18.8'
-    implementation 'org.slf4j:slf4j-api:2.0.3'
-    implementation 'ch.qos.logback:logback-classic:1.4.4'
-    implementation 'ch.qos.logback:logback-core:1.4.4'
+    implementation 'org.slf4j:slf4j-api:1.7.25'
+    implementation 'ch.qos.logback:logback-classic:1.2.3'
+    implementation 'ch.qos.logback:logback-core:1.2.3'
 
     // https://mvnrepository.com/artifact/org.web3j/core
     implementation 'org.web3j:core:5.0.0'

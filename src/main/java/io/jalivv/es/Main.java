@@ -16,6 +16,7 @@ import org.elasticsearch.common.xcontent.XContentType;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.Scanner;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
@@ -27,6 +28,10 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class Main {
 
     private static final RestHighLevelClient CLIENT = EsConfig.newClientInstance(true);
+    private static final RestHighLevelClient CLIENT1 = EsConfig.newClientInstance(false);
+    private static final RestHighLevelClient CLIENT2 = EsConfig.newClientInstance(false);
+    private static final RestHighLevelClient CLIENT3 = EsConfig.newClientInstance(false);
+    private static final RestHighLevelClient CLIENT4 = EsConfig.newClientInstance(false);
 
 
     private static LinkedBlockingQueue<SaveBlock> blockQueue = new LinkedBlockingQueue<>(1000);
@@ -60,20 +65,30 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        initEs();
-        initConsumerQueue();
-        long s = System.currentTimeMillis();
-        for (int i = 0; i < CAPACITY; i++) {
-            SaveBlock b = createSaveBlock(i);
-            try {
-                blockQueue.put(b);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
+        //initEs();
+        //initConsumerQueue();
+        //long s = System.currentTimeMillis();
+        //for (int i = 0; i < CAPACITY; i++) {
+        //    SaveBlock b = createSaveBlock(i);
+        //    try {
+        //        blockQueue.put(b);
+        //    } catch (InterruptedException e) {
+        //        throw new RuntimeException(e);
+        //    }
+        //}
+        //
+        //checkComplete();
+        //log.info("write {} block to es, time:{}ms", CAPACITY, System.currentTimeMillis() - s);
 
-        checkComplete();
-        log.info("write {} block to es, time:{}ms", CAPACITY, System.currentTimeMillis() - s);
+
+        new Thread(() -> {
+            Scanner in = new Scanner(System.in);
+            while (true){
+                int i = in.nextInt();
+                log.info("write block:{} information into es", i);
+            }
+
+        }).start();
     }
 
     private static void checkComplete() {
@@ -85,17 +100,16 @@ public class Main {
         }
     }
 
+    /**
+     * 10个线程 1个client  5803ms
+     * 10个线程 2个client  5640ms
+     * 10个线程 4个client  5781ms ----- 20个线程 4个client  3165ms
+     * 10个线程 5个client  5633ms ----- 20个线程 5个client  2978ms
+     *
+     *
+     */
     private static void initConsumerQueue() {
-        consumeAsync(CLIENT);
-        consumeAsync(CLIENT);
-        consumeAsync(CLIENT);
-        consumeAsync(CLIENT);
-        consumeAsync(CLIENT);
-        consumeAsync(CLIENT);
-        consumeAsync(CLIENT);
-        consumeAsync(CLIENT);
-        consumeAsync(CLIENT);
-        consumeAsync(CLIENT);
+        //consumeAsync(CLIENT4);
 
     }
 
